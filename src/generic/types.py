@@ -1,6 +1,8 @@
 from enum import Enum
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List
+from __future__ import annotations
 
 class ContentType(Enum): 
     IMAGE =  1
@@ -20,16 +22,39 @@ class Status(Enum):
     NOT_FOUND = 2 
     SUCCESS = 1 
     FAILURE = 0 
-
+    
 @dataclass
 class Address:
     ip : str
     port : int
 
-@dataclass
-class Content: 
-    content_data : bytes 
-    content_type : ContentType 
-    user : str  
-    upload_time : datetime  
-    num_of_threads : int 
+
+class GenericDataclass: 
+    @dataclass
+    class Content: 
+        content_data : bytes 
+        content_type : ContentType 
+        user : str  
+        upload_time : datetime  
+        num_of_threads : int
+        threads : List[GenericDataclass.Thread] | None = None 
+
+    @dataclass
+    class Session:
+        uuid : bytes
+        content : GenericDataclass.Content
+
+    @dataclass
+    class Thread(Session): 
+        parent : GenericDataclass.Session | GenericDataclass.Thread 
+
+    @dataclass
+    class User:
+        name: str
+        hashed_password: bytes
+
+
+
+
+    
+    

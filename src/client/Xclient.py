@@ -1,13 +1,7 @@
-import socket 
-import datetime
-import logging
-import json 
-import threading
-
-from uuid import uuid4 
 from src.generic.types import * 
 from src.generic.client.stream import SecureStream, StreamAuthorized
 from src.generic.session import Session, Thread
+from src.generic.utils import create_uuid
 
 class Xclient(SecureStream):
     def __init__(self, **kwargs) -> None:
@@ -85,7 +79,7 @@ class ClientSession(Session):
     def send_action(self, action, **kwargs): 
         self.handler.send_action(action, **kwargs)
 
-    def create_thread(self, content_type, content : Content): 
+    def create_thread(self, content : Content): 
         response = self.send_action(ActionType.CreateThread, {
             "content" : content, 
             "parent_uuid" : self.uuid,
@@ -98,14 +92,12 @@ class ClientSession(Session):
         return Status.SUCCESS
     
     def get_content(self):
-        if not all(super().get_content()): 
+        if not super().get_content(): 
             response = self.send_action(ActionType.GetContent, {
                 "content_uuid" : self.uuid
             })
             response = response.get("content")
-
-            if not all(response.get("content_data"), response.get("content_type"), response.get("user")
-                    / response.get("upload_time"), response.get("num_of_threads")): 
+            if not response: 
                 return Status.FAILURE
             
             self.content = Content(**response)

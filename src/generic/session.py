@@ -1,12 +1,11 @@
 from src.generic.types import * 
 from src.generic.utils import create_uuid 
-from datetime import datetime 
 
 class Session(): 
-    def __init__(self, uuid, content : Content = None):   
+    def __init__(self, uuid, content : GenericDataclass.Content = None):   
         self.uuid = uuid 
         self.threads = []
-        self.content : Content = content
+        self.content : GenericDataclass.Content = content
 
     def append(self, thread):
         self.threads.append(thread)

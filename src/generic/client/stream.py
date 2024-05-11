@@ -2,7 +2,6 @@ import socket
 import threading
 import json
 
-from uuid import uuid4
 from src.generic.types import *
 from src.generic.utils import create_uuid
 
