@@ -1,7 +1,7 @@
-from uuid import uuid4 
 from src.generic.types import *
 from src.generic.server.stream import StreamServer
 from src.server.action_handler import Xhandler
+from src.generic.session import Thread, Session
 
 class Xserver(StreamServer): 
     def __init__(self, address) -> None:
@@ -9,7 +9,7 @@ class Xserver(StreamServer):
         
         self.handler = Xhandler 
         self.users = {} # key : username
-        self.sessions = {} # uuid : session 
+        self.sessions : Session = {} # uuid : session 
 
     def recv_action(self, sock):
         return self.handle_action(super().recv_action(sock)) 

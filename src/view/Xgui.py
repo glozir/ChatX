@@ -1,6 +1,4 @@
 
 
-from src.client.Xclient import Chat
-
-class XGUI(): 
+class Xgui(): 
     pass

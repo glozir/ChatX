@@ -4,11 +4,7 @@ import json
 
 from uuid import uuid4
 from src.generic.types import *
-
-
-def create_uuid(): 
-    return uuid4()
-
+from src.generic.utils import create_uuid
 
 class Stream(socket.socket): 
     def __init__(self, address : Address, *args) -> None:
@@ -57,14 +53,14 @@ class Stream(socket.socket):
         return self._find_response(uuid, retries) 
     
 
-class SecureStream(socket.socket):
-    def __init__(self, address : Address, *args) -> None:
-        super().__init__(address)    
+class SecureStream(socket.socket): # TODO: not finished 
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)    
 
 
 class StreamAuthorized(SecureStream): 
-    def __init__(self, address: Address, key) -> None:
-        super().__init__(address)
+    def __init__(self, key, **kwargs) -> None:
+        super().__init__(**kwargs)
         self._key = key 
     
     def send_action(self, action, *kwargs): 

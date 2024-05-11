@@ -20,5 +20,5 @@ class Xhandler(ActionHandler):
     def __init__(self):
         super().__init__()
 
-    def handle_action(self, action_type, **kwargs):
-        return super().handle_action(action_type, **kwargs)
+    def handle_action(self, **kwargs):
+        return super().handle_action(**kwargs)

@@ -5,11 +5,7 @@ import select
 
 from uuid import uuid4
 from src.generic.types import *
-
-
-def create_uuid(): 
-    return uuid4()
-
+from src.generic.utils import create_uuid
 
 class StreamServer(socket.socket): 
     def __init__(self, address) -> None:

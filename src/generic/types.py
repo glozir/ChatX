@@ -1,5 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
+from datetime import datetime
 
 class ContentType(Enum): 
     IMAGE =  1
@@ -27,4 +28,8 @@ class Address:
 
 @dataclass
 class Content: 
-    pass
+    content_data : bytes 
+    content_type : ContentType 
+    user : str  
+    upload_time : datetime  
+    num_of_threads : int 
