@@ -23,13 +23,14 @@ class Status(Enum):
     SUCCESS = 1 
     FAILURE = 0 
     
-@dataclass
-class Address:
-    ip : str
-    port : int
 
 
-class GenericDataclass: 
+
+class Dataclass: 
+    @dataclass
+    class Address:
+        ip : str
+        port : int
     @dataclass
     class Content: 
         content_data : bytes 
@@ -37,16 +38,16 @@ class GenericDataclass:
         user : str  
         upload_time : datetime  
         num_of_threads : int
-        threads : List[GenericDataclass.Thread] | None = None 
+        threads : List[Dataclass.Thread] | None = None 
 
     @dataclass
     class Session:
         uuid : bytes
-        content : GenericDataclass.Content
+        content : Dataclass.Content
 
     @dataclass
     class Thread(Session): 
-        parent : GenericDataclass.Session | GenericDataclass.Thread 
+        parent : Dataclass.Session | Dataclass.Thread 
 
     @dataclass
     class User:

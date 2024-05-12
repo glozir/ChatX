@@ -25,10 +25,10 @@ class Xserver(StreamServer):
         response = await self.handler.handle_action(data["action_type"], data)
         if not response: 
             return Status.FAILURE
-        return self.send_message(sock, response, data["message_uuid"])
+        return self.send_message(sock, response, data["message_uuid"]) # TODO: I think the message uuid handling should be done in the stream level
 
     def assign_key(self, username): 
-        key = create_uuid() # FIXME: change this logic 
+        key = create_uuid() # TODO: change this logic 
         self.users[key] = username
         return key 
 
@@ -50,12 +50,13 @@ class Xserver(StreamServer):
         if user:
             return Status.FAILURE
         
-        await self.database_handler.add_user(GenericDataclass.User(username, hashpw(password, gensalt())))
+        await self.database_handler.add_user(Dataclass.User(username, hashpw(password, gensalt())))
         return self.assign_key(username)
 
     @Xhandler(ActionType.CreateSession)
-    async def create_session(self): 
-        pass
+    async def create_session(self, key, content): 
+        username = self.users[key]
+
 
     @Xhandler(ActionType.CreateThread)
     async def create_thread(self):

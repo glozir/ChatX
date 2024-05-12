@@ -36,13 +36,13 @@ class Xclient(SecureStream):
     
 
 class SessionHandler(StreamAuthorized):
-    def __init__(self, address : Address, key) -> None:
+    def __init__(self, address : Dataclass.Address, key) -> None:
         super().__init__(address, key)
 
         self.sessions = []
 
 
-    def create_session(self, content : Content): 
+    def create_session(self, content : Dataclass.Content): 
         response = self.send_action(ActionType.CreateSession, {
             "content" : content
         })
@@ -79,7 +79,7 @@ class ClientSession(Session):
     def send_action(self, action, **kwargs): 
         self.handler.send_action(action, **kwargs)
 
-    def create_thread(self, content : Content): 
+    def create_thread(self, content : Dataclass.Content): 
         response = self.send_action(ActionType.CreateThread, {
             "content" : content, 
             "parent_uuid" : self.uuid,
@@ -100,7 +100,7 @@ class ClientSession(Session):
             if not response: 
                 return Status.FAILURE
             
-            self.content = Content(**response)
+            self.content = Dataclass.Content(**response)
 
             return super().get_content()
         return super().get_content()

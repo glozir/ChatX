@@ -2,10 +2,10 @@ from src.generic.types import *
 from src.generic.utils import create_uuid 
 
 class Session(): 
-    def __init__(self, uuid, content : GenericDataclass.Content = None):   
+    def __init__(self, uuid, content : Dataclass.Content = None):   
         self.uuid = uuid 
         self.threads = []
-        self.content : GenericDataclass.Content = content
+        self.content : Dataclass.Content = content
 
     def append(self, thread):
         self.threads.append(thread)

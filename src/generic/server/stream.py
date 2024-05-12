@@ -3,7 +3,6 @@ import threading
 import json
 import select 
 
-from uuid import uuid4
 from src.generic.types import *
 from src.generic.utils import create_uuid
 

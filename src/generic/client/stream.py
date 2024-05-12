@@ -6,7 +6,7 @@ from src.generic.types import *
 from src.generic.utils import create_uuid
 
 class Stream(socket.socket): 
-    def __init__(self, address : Address, *args) -> None:
+    def __init__(self, address : Dataclass.Address, *args) -> None:
         super().__init__(socket.AF_INET, socket.SOCK_STREAM, *args)
         self.connect(address)
 
@@ -16,7 +16,7 @@ class Stream(socket.socket):
         rec_messages_thread.daemon = True
         rec_messages_thread.start()
 
-    def connect(self, address: Address) -> None:
+    def connect(self, address: Dataclass.Address) -> None:
         return super().connect((address.ip, address.port)) 
 
 
@@ -50,7 +50,7 @@ class Stream(socket.socket):
         uuid = self._send_action(action, **kwargs)
 
         return self._find_response(uuid, retries) 
-    
+     
 
 class SecureStream(socket.socket): # TODO: not finished 
     def __init__(self, **kwargs) -> None:
