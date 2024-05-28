@@ -1,4 +1,0 @@
-
-
-class Xgui(): 
-    pass
