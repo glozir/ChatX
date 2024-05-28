@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import Union, List
 
-from .types import Dataclass
+from ..generic.types import Dataclass
 from .utils import create_uuid
 
 
@@ -24,12 +24,10 @@ class Session(object):
         """ Create a thread with optional content argument."""
         self.append(Thread(self, content))
 
-    @getattr('content')
     def get_content(self) -> Union[Dataclass.Content | None]:
         """ Returns the content property of the session."""
         return self.content
 
-    @getattr('threads')
     def get_threads(self) -> Union[List[Thread] | None]:
         """ Returns the threads property of the session."""
         return self.threads

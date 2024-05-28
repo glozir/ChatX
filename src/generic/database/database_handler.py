@@ -13,6 +13,7 @@ def find_by_attribute(collection_name: str, attribute: str, class_type):
             collection = getattr(self.db, collection_name)
             obj = await collection.find_one({attribute: value})
             if obj:
+                obj.pop("_id", None)
                 return class_type(**obj)
             return None
         return wrapper

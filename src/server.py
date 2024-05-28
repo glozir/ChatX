@@ -1,8 +1,8 @@
-from .server_services import server_handler 
+from .server_services.server_handler import Xserver 
 from fastapi import FastAPI
 
 def create_server(): 
-    server = server_handler.Xserver()
+    server = Xserver()
     app = FastAPI()
 
     app.include_router(server.route_handler)
