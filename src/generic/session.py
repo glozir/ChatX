@@ -1,8 +1,9 @@
+""" Base session """
 from __future__ import annotations
 from typing import Union, List
 
-from src.generic.types import Dataclass
-from src.generic.utils import create_uuid
+from .types import Dataclass
+from .utils import create_uuid
 
 
 class Session(object):
