@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 
 class ContentType(Enum):
@@ -17,10 +17,14 @@ class ActionType(Enum):
     CreateSession = 2
     Authenticate = 3
     CreateUser = 4
-    GetSessions = 5
-    GetThreads = 6
-    GetContent = 7
+    GetSession = 5
+    GetThread = 6
+    GetSessions = 7
+    GetContent = 8 
 
+class Method(Enum): 
+    GET = 0 
+    POST = 1
 
 class Status(Enum):
     NOT_FOUND = 2
@@ -38,10 +42,10 @@ class Dataclass:
     class Content:
         content_data: bytes
         content_type: ContentType
-        user: str
+        username: str
         upload_time: datetime
         num_of_threads: int
-        threads: List[Dataclass.Thread] | None = None
+        threads_uuid: List[bytes] | None = None
 
     @dataclass
     class Session:
@@ -50,7 +54,7 @@ class Dataclass:
 
     @dataclass
     class Thread(Session):
-        parent: Dataclass.Session | Dataclass.Thread | None
+        parent_uuid: bytes | None
 
     @dataclass
     class User:

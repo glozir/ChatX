@@ -8,4 +8,3 @@ def create_server():
     app.include_router(server.route_handler)
 
     return app
-

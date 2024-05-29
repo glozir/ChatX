@@ -2,8 +2,8 @@
 from __future__ import annotations
 from typing import Union, List
 
-from ..generic.types import Dataclass, ActionType, Status
-from ..generic.client.http_client import httpClient
+from ..generic.types import Dataclass, ActionType, Status, Method
+from ..generic.client.http_client import httpClient, httpClientAuthorized
 from ..generic.session import Session, Thread
 
 
@@ -28,15 +28,15 @@ class Xclient(httpClient):
             Success if the server returns the session key, 
             Failure if the server doesn't return the session key  
         """
-        key = self.send_action(ActionType.Authenticate, {
+        key = self.send_action(ActionType.Authenticate, Method.GET, {
             "password": password,
             "username": username
         })
-        if not key:
+        if key == Status.FAILURE:
             return Status.FAILURE
 
         self.username = username
-        self.handler = SessionHandler(self.address, key)
+        self.handler = SessionHandler(key)
         return Status.SUCCESS
 
     def create_user(self, username, password):
@@ -51,25 +51,25 @@ class Xclient(httpClient):
             Success if the server returns the session key, 
             Failure if the server doesn't return the session key  
         """
-        response = self.send_action(ActionType.CreateUser, {
+        response = self.send_action(ActionType.CreateUser, Method.GET, {
             "password": password,
             "username": username
         })
-        if not response.get("key"):
+        if not response:
             return Status.FAILURE
 
         self.username = username
-        self.handler = SessionHandler(self.address, response.get("key"))
+        self.handler = SessionHandler(response)
         return Status.SUCCESS
 
 
-class SessionHandler(StreamAuthorized):
+class SessionHandler(httpClientAuthorized):
     """ Class SessionHandler is responsible for handling session communication from the client 
         side and stores all of the client threads
         """
 
-    def __init__(self, key: str, address: Dataclass.Address, **kwargs) -> None:
-        super().__init__(key, address, **kwargs)
+    def __init__(self, key: str, **kwargs) -> None:
+        super().__init__(key, **kwargs)
 
         self.sessions: ClientSession = []
 
@@ -84,9 +84,7 @@ class SessionHandler(StreamAuthorized):
             Success if the server returns the server uuid,
             Failure if the server doesn't return the server uuid 
         """
-        response = self.send_action(ActionType.CreateSession, **{
-            "content": content
-        })
+        response = self.send_action(ActionType.CreateSession, Method.POST, **content)
 
         if not response.get("session_uuid"):
             return Status.FAILURE
@@ -105,17 +103,15 @@ class SessionHandler(StreamAuthorized):
             Success if the server returns the sessions,
             Failure if the server doesn't return the sessions  
         """
-        response = self.send_action(ActionType.GetSessions, {
-            'number_of_sessions': number
+        response = self.send_action(ActionType.GetSessions, Method.GET, {
+            'number': number
         })
 
-        if not response.get("sessions"):
-            return Status.FAILURE
 
-        for session in response["sessions"]:
-            if not session.get("session_uuid"):
+        for session in response:
+            if not session.get("uuid"):
                 return Status.FAILURE
-            self.append(ClientSession(self, session["session_uuid"]))
+            self.append(ClientSession(self, session["uuid"]))
 
         return self.sessions
 
@@ -133,48 +129,33 @@ class ClientSession(Session):
 
         self.handler = handler
 
-    def send_action(self, action, **kwargs):
+    def send_action(self, action, method, params, **kwargs):
         """ sends action to server with respective kwargs."""
-        return self.handler.send_action(action, **kwargs)
+        return self.handler.send_action(action, method, params, **kwargs)
 
     def create_thread(self, content: Dataclass.Content) -> Status:
-        response = self.send_action(ActionType.CreateThread, **{
-            "content": content,
-            "parent_uuid": self.uuid,
-        })
+        response = self.send_action(ActionType.CreateThread, Method.POST, params={"parent_uuid": self.uuid},
+            **content)
 
-        if not response.get("uuid"):
+        if not response:
             return Status.FAILURE
 
         self.append(ClientThread(self.handler, self,
-                    response["uuid"], content))
+                    response, content))
 
         return Status.SUCCESS
 
-    def get_content(self):
-        if not self.content:
-            response = self.send_action(ActionType.GetContent, **{
-                "uuid": self.uuid
-            })
-            response = response.get("content")
-            if not response:
-                return Status.FAILURE
 
-            self.content = Dataclass.Content(**response)
-
-            return self.content
-        return self.content
-
-    def get_threads(self):
-        response = self.send_action(ActionType.GetThreads, **{
+    def get_thread(self):
+        response = self.send_action(ActionType.GetThread, Method.GET, **{
             "uuid": self.uuid,
         })
 
-        if not response.get("threads"):
+        if not response:
             return Status.NOT_FOUND
-        for thread in response["threads"]:
-            self.append(ClientThread(
-                self.handler, self, thread["uuid"]))
+        
+        self.append(ClientThread(
+            self.handler, self, response["uuid"], response["content"]))
 
         return self.threads
 

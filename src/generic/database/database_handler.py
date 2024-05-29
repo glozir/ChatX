@@ -3,7 +3,7 @@ from functools import wraps
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from ..session import Session, Thread
-from ..types import Dataclass
+from ..types import Dataclass, Status
 
 
 def find_by_attribute(collection_name: str, attribute: str, class_type):
@@ -15,7 +15,7 @@ def find_by_attribute(collection_name: str, attribute: str, class_type):
             if obj:
                 obj.pop("_id", None)
                 return class_type(**obj)
-            return None
+            return Status.FAILURE
         return wrapper
     return decorator
 
@@ -43,11 +43,15 @@ class AsyncMongoDBClient:
     async def add_session(self, session: Session):
         pass
 
+    @insert_into_collection("threads")
+    async def add_thread(self, session: Thread):
+        pass
+
     async def update_thread(self, thread: Thread):
         pipeline = [
             {
                 "$graphLookup": {
-                    "from": "sessions",
+                    "from": "threads",
                     "startWith": "$content.threads",
                     "connectFromField": "content.threads",
                     "connectToField": "uuid",
@@ -80,8 +84,12 @@ class AsyncMongoDBClient:
     async def find_user_by_name(self, name):
         pass
 
-    @find_by_attribute("threads", "uuid", Session)
+    @find_by_attribute("sessions", "uuid", Session)
     async def find_session_by_uuid(self, uuid):
+        pass
+
+    @find_by_attribute("threads", "uuid", Thread)
+    async def find_thread_by_uuid(self, uuid):
         pass
 
     async def find_thread_by_uuid(self, uuid):
@@ -114,3 +122,11 @@ class AsyncMongoDBClient:
             if matched_thread:
                 return Dataclass.Thread(**matched_thread)
         return None
+
+    async def get_sessions(self, number: int = 5):
+        cursor = self.db.sessions.find().limit(number)
+        sessions = []
+        async for document in cursor:
+            document.pop("_id", None)
+            sessions.append(Session(**document))
+        return sessions
